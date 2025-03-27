@@ -30,27 +30,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($data["user_id"])) {
     $conn->begin_transaction();
     
     try {
-        // Insert into Orders
-        $order_stmt = $conn->prepare("INSERT INTO Orders (user_id, total_amount) VALUES (?, ?)");
+        // Insert into Orders with city parameter for new schema
+        $order_stmt = $conn->prepare("INSERT INTO Orders (user_id, total, city) VALUES (?, ?, 'Online Order')");
         $order_stmt->bind_param("id", $user_id, $total_amount);
         $order_stmt->execute();
         $order_id = $conn->insert_id;
         $order_stmt->close();
         
-        // Insert into OrderItems
-        $item_stmt = $conn->prepare("INSERT INTO OrderItems (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)");
-        $item_stmt->bind_param("iiid", $order_id, $product_id, $quantity, $price);
+        // Insert into Order_Contains (changed from OrderItems)
+        $item_stmt = $conn->prepare("INSERT INTO Order_Contains (order_id, product_id, quantity) VALUES (?, ?, ?)");
+        $item_stmt->bind_param("iii", $order_id, $product_id, $quantity);
         $item_stmt->execute();
         $item_stmt->close();
         
-        // Update stock (careful with this if triggers exist)
-        $stock_stmt = $conn->prepare("UPDATE Products SET stock_quantity = stock_quantity - ? WHERE product_id = ?");
-        $stock_stmt->bind_param("ii", $quantity, $product_id);
-        $stock_stmt->execute();
-        $stock_stmt->close();
+        // No need to manually update stock - we have a trigger for that now
         
         // Commit the transaction
         $conn->commit();
+        
+        // Get the order date from the database for accuracy
+        $date_query = "SELECT order_date FROM Orders WHERE order_id = ?";
+        $date_stmt = $conn->prepare($date_query);
+        $date_stmt->bind_param("i", $order_id);
+        $date_stmt->execute();
+        $date_result = $date_stmt->get_result();
+        $order_date = $date_result->fetch_assoc()['order_date'] ?? date('Y-m-d H:i:s');
+        $date_stmt->close();
         
         // Success response
         $response = [
@@ -64,7 +69,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($data["user_id"])) {
                 'quantity' => $quantity,
                 'price' => $price,
                 'total' => $total_amount,
-                'order_date' => date('Y-m-d H:i:s')
+                'order_date' => $order_date
             ]
         ];
     } catch (Exception $e) {

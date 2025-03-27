@@ -74,9 +74,6 @@
                             <label for="user_id" class="form-label">Select User:</label>
                             <select class="form-select" id="user_id" name="user_id" required>
                                 <option value="">-- Select User --</option>
-                                <option value="1">User One (ID: 1)</option>
-                                <option value="2">User Two (ID: 2)</option>
-                                <option value="3">User Three (ID: 3)</option>
                             </select>
                         </div>
                         
@@ -100,8 +97,8 @@
             <div class="col-md-6 mx-auto">
                 <div class="alert alert-success">
                     <h4>Product Added to Wishlist!</h4>
-                    <p><span id="selectedProductName">Product</span> has been added to wishlist</p>
-                    <p>Added to wishlist for user_id = <span id="selectedUserId">1</span> and product_id = <span id="selectedProductId">1</span></p>
+                    <p><span id="selectedProductName"></span> has been added to wishlist</p>
+                    <p>Added to wishlist for user_id = <span id="selectedUserId"></span> and product_id = <span id="selectedProductId"></span></p>
                 </div>
             </div>
         </div>
@@ -138,6 +135,45 @@
         
         // Load products from the database when the page loads
         document.addEventListener('DOMContentLoaded', function() {
+            // Fetch users from API
+            fetch('get_users.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const userSelect = document.getElementById('user_id');
+                        userSelect.innerHTML = '<option value="">-- Select a User --</option>';
+                        
+                        // Add each user to the dropdown
+                        data.users.forEach(user => {
+                            const option = document.createElement('option');
+                            option.value = user.user_id;
+                            option.textContent = `${user.name} (ID: ${user.user_id})`;
+                            userSelect.appendChild(option);
+                        });
+                    } else {
+                        console.error('Error loading users:', data.message);
+                        // Fallback if API fails
+                        const userSelect = document.getElementById('user_id');
+                        userSelect.innerHTML = `
+                            <option value="">-- Select a User --</option>
+                            <option value="1">User One (ID: 1)</option>
+                            <option value="2">User Two (ID: 2)</option>
+                            <option value="3">User Three (ID: 3)</option>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    // Fallback if API fails
+                    const userSelect = document.getElementById('user_id');
+                    userSelect.innerHTML = `
+                        <option value="">-- Select a User --</option>
+                        <option value="1">User One (ID: 1)</option>
+                        <option value="2">User Two (ID: 2)</option>
+                        <option value="3">User Three (ID: 3)</option>
+                    `;
+                });
+                
             // Fetch products from API
             fetch('get_products.php')
                 .then(response => response.json())

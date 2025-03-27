@@ -51,7 +51,7 @@ else if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($data["action"]) && $data
     
     // Query to get reviews for a product
     $query = "SELECT r.review_id, r.product_id, r.user_id, r.rating, r.comment, r.review_date,
-              u.username, p.name as product_name
+              u.name as username, p.name as product_name
               FROM Reviews r
               JOIN Users u ON r.user_id = u.user_id
               JOIN Products p ON r.product_id = p.product_id

@@ -138,15 +138,15 @@
                             <div class="row mb-3">
                                 <div class="col-md-6">
                                     <label for="card_number" class="form-label">Card Number:</label>
-                                    <input type="text" class="form-control" id="card_number" name="card_number" value="**** **** **** 1234">
+                                    <input type="text" class="form-control" id="card_number" name="card_number" placeholder="**** **** **** ****">
                                 </div>
                                 <div class="col-md-3">
                                     <label for="expiry" class="form-label">Expiry:</label>
-                                    <input type="text" class="form-control" id="expiry" name="expiry" value="12/25">
+                                    <input type="text" class="form-control" id="expiry" name="expiry" placeholder="MM/YY">
                                 </div>
                                 <div class="col-md-3">
                                     <label for="cvv" class="form-label">CVV:</label>
-                                    <input type="text" class="form-control" id="cvv" name="cvv" value="***">
+                                    <input type="text" class="form-control" id="cvv" name="cvv" placeholder="***">
                                 </div>
                             </div>
                         </div>
@@ -164,8 +164,8 @@
             <div class="col-md-8 mx-auto">
                 <div class="alert alert-success">
                     <h4>Order Placed Successfully!</h4>
-                    <p>Your order has been submitted. The order number is <strong>#<span id="generatedOrderId">10001</span></strong>.</p>
-                    <p>Order placed successfully with user_id = <span id="selectedUserId">3</span>, product_id = <span id="selectedProductId">5</span>, quantity = <span id="selectedQuantity">2</span></p>
+                    <p>Your order has been submitted. The order number is <strong>#<span id="generatedOrderId"></span></strong>.</p>
+                    <p>Order placed successfully with user_id = <span id="selectedUserId"></span>, product_id = <span id="selectedProductId"></span>, quantity = <span id="selectedQuantity"></span></p>
                 </div>
             </div>
         </div>
@@ -178,9 +178,9 @@
                     
                     <div class="alert alert-info">
                         <h4 class="alert-heading">Thank you for your order!</h4>
-                        <p>Order #<span id="confirmationOrderId">10001</span> has been placed and is being processed.</p>
+                        <p>Order #<span id="confirmationOrderId"></span> has been placed and is being processed.</p>
                         <hr>
-                        <p class="mb-0">An email confirmation has been sent to <strong>user<span id="emailUserId">3</span>@example.com</strong></p>
+                        <p class="mb-0">An email confirmation has been sent to <strong><span id="emailAddress"></span></strong></p>
                     </div>
                     
                     <div class="row">
@@ -388,7 +388,7 @@
                     document.getElementById('selectedUserId').textContent = userId;
                     document.getElementById('selectedProductId').textContent = productId;
                     document.getElementById('selectedQuantity').textContent = quantity;
-                    document.getElementById('emailUserId').textContent = userId;
+                    document.getElementById('emailAddress').textContent = 'user' + userId + '@example.com';
                     
                     // Update displayed values in the order summary
                     document.getElementById('summaryQuantity').textContent = quantity;

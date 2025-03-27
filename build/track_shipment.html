@@ -139,12 +139,12 @@
             <div class="col-md-8 mx-auto">
                 <div class="alert alert-success" id="orderFoundAlert">
                     <h4>Order Found!</h4>
-                    <p>We've found information about your order #<span id="foundOrderId">10001</span>.</p>
-                    <p>Current Status: <span id="orderStatus">Processing</span></p>
+                    <p>We've found information about your order #<span id="foundOrderId"></span>.</p>
+                    <p>Current Status: <span id="orderStatus"></span></p>
                 </div>
                 <div class="alert alert-danger hidden" id="orderNotFoundAlert">
                     <h4>Order Not Found</h4>
-                    <p>We couldn't find any information about order #<span id="notFoundOrderId">99999</span>.</p>
+                    <p>We couldn't find any information about order #<span id="notFoundOrderId"></span>.</p>
                     <p>Please check the order number and try again.</p>
                 </div>
             </div>
@@ -165,15 +165,15 @@
                                         <tbody>
                                             <tr>
                                                 <th scope="row">Order Number:</th>
-                                                <td id="displayOrderId">10001</td>
+                                                <td id="displayOrderId"></td>
                                             </tr>
                                             <tr>
                                                 <th scope="row">Order Date:</th>
-                                                <td id="orderDate">Jan 15, 2025</td>
+                                                <td id="orderDate"></td>
                                             </tr>
                                             <tr>
                                                 <th scope="row">Status:</th>
-                                                <td id="displayOrderStatus">Processing</td>
+                                                <td id="displayOrderStatus"></td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -188,15 +188,15 @@
                                         <tbody>
                                             <tr>
                                                 <th scope="row">Tracking Number:</th>
-                                                <td id="trackingNumber">TRK12345678</td>
+                                                <td id="trackingNumber">Pending</td>
                                             </tr>
                                             <tr>
                                                 <th scope="row">Shipping Method:</th>
-                                                <td>Standard Shipping</td>
+                                                <td id="shippingMethod">Standard Shipping</td>
                                             </tr>
                                             <tr>
                                                 <th scope="row">Estimated Delivery:</th>
-                                                <td id="estimatedDelivery">Jan 20, 2025</td>
+                                                <td id="estimatedDelivery">Pending</td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -209,20 +209,20 @@
                     <div class="shipment-timeline mt-4">
                         <div class="timeline-item">
                             <div class="timeline-line"></div>
-                            <div class="timeline-point completed">✓</div>
+                            <div class="timeline-point">●</div>
                             <div class="timeline-content">
                                 <div class="timeline-title">Order Placed</div>
-                                <div class="timeline-date" id="orderPlacedDate">Jan 15, 2025</div>
+                                <div class="timeline-date" id="orderPlacedDate">Pending</div>
                                 <p>Your order has been received and payment confirmed.</p>
                             </div>
                         </div>
                         
                         <div class="timeline-item" id="processingStage">
                             <div class="timeline-line"></div>
-                            <div class="timeline-point active">●</div>
+                            <div class="timeline-point">●</div>
                             <div class="timeline-content">
                                 <div class="timeline-title">Processing</div>
-                                <div class="timeline-date" id="processingDate">Jan 16, 2025</div>
+                                <div class="timeline-date" id="processingDate">Pending</div>
                                 <p>Your order is being processed and prepared for shipping.</p>
                             </div>
                         </div>

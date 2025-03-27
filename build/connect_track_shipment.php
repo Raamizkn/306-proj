@@ -8,8 +8,15 @@ $data = json_decode(file_get_contents('php://input'), true);
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($data["order_id"])) {
     $order_id = $data["order_id"];
     
-    // Call the TrackOrder stored procedure
-    $stmt = $conn->prepare("CALL TrackOrder(?)");
+    // Query the order and shipment information directly instead of using a stored procedure
+    $query = "SELECT o.order_id, o.order_date, o.order_status, 
+                     s.shipment_id, s.shipment_status, s.shipment_date, s.delivery_date,
+                     (SELECT COUNT(*) FROM Order_Contains oc WHERE oc.order_id = o.order_id) as item_count
+              FROM Orders o
+              LEFT JOIN Shipment s ON o.order_id = s.order_id
+              WHERE o.order_id = ?";
+    
+    $stmt = $conn->prepare($query);
     
     if ($stmt) {
         $stmt->bind_param("i", $order_id);
