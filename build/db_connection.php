@@ -1,11 +1,12 @@
 <?php
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "306_project";
+// Database connection configuration
+$host = 'localhost';
+$username = 'clothes_app';
+$password = 'clothes_password'; // Using the dedicated user instead of root
+$database = '306_project';
 
-// Create connection
-$conn = new mysqli($servername, $username, $password, $dbname);
+// Establish connection
+$conn = new mysqli($host, $username, $password, $database);
 
 // Check connection
 if ($conn->connect_error) {
