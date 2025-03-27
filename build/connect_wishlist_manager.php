@@ -11,69 +11,64 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($data["action"]) && $data["act
     
     $user_id = $data["user_id"];
     $product_id = $data["product_id"];
-    $quantity = $data["quantity"] ?? 1;
     
     try {
-        // Begin transaction
-        $conn->begin_transaction();
+        // First check if the AddToWishlist stored procedure exists
+        $check_proc = $conn->query("SHOW PROCEDURE STATUS WHERE Db = '306_project' AND Name = 'AddToWishlist'");
         
-        // Check if user has a wishlist
-        $wishlist_query = "SELECT wishlist_id FROM Wishlist WHERE user_id = ?";
-        $wishlist_stmt = $conn->prepare($wishlist_query);
-        $wishlist_stmt->bind_param("i", $user_id);
-        $wishlist_stmt->execute();
-        $wishlist_result = $wishlist_stmt->get_result();
-        
-        if ($wishlist_result->num_rows > 0) {
-            // User already has a wishlist
-            $wishlist_id = $wishlist_result->fetch_assoc()['wishlist_id'];
-        } else {
-            // Create a new wishlist for the user
-            $create_stmt = $conn->prepare("INSERT INTO Wishlist (user_id, subtotal) VALUES (?, 0)");
-            $create_stmt->bind_param("i", $user_id);
-            $create_stmt->execute();
-            $wishlist_id = $conn->insert_id;
-            $create_stmt->close();
+        if ($check_proc->num_rows == 0) {
+            // Create the stored procedure if it doesn't exist
+            $create_proc = "
+                CREATE PROCEDURE AddToWishlist(
+                    IN p_user_id INT,
+                    IN p_product_id INT
+                )
+                BEGIN
+                    DECLARE v_wishlist_id INT DEFAULT NULL;
+                    
+                    -- Get wishlist ID for user
+                    SELECT wishlist_id INTO v_wishlist_id FROM Wishlist WHERE user_id = p_user_id LIMIT 1;
+                    
+                    -- Create wishlist if it doesn't exist
+                    IF v_wishlist_id IS NULL THEN
+                        INSERT INTO Wishlist (user_id, subtotal) VALUES (p_user_id, 0);
+                        SET v_wishlist_id = LAST_INSERT_ID();
+                    END IF;
+                    
+                    -- Add or update product in wishlist
+                    INSERT INTO Wishlist_Contains (wishlist_id, product_id, quantity) 
+                    VALUES (v_wishlist_id, p_product_id, 1) 
+                    ON DUPLICATE KEY UPDATE quantity = quantity + 1;
+                    
+                    -- Update subtotal
+                    UPDATE Wishlist w SET w.subtotal = (
+                        SELECT SUM(p.price * wc.quantity) 
+                        FROM Wishlist_Contains wc 
+                        JOIN Products p ON wc.product_id = p.product_id 
+                        WHERE wc.wishlist_id = w.wishlist_id
+                    )
+                    WHERE w.wishlist_id = v_wishlist_id;
+                    
+                    -- Return the wishlist id
+                    SELECT v_wishlist_id AS wishlist_id;
+                END;
+            ";
+            
+            $conn->query($create_proc);
         }
-        $wishlist_stmt->close();
         
-        // Get product price
-        $price_query = "SELECT price FROM Products WHERE product_id = ?";
-        $price_stmt = $conn->prepare($price_query);
-        $price_stmt->bind_param("i", $product_id);
-        $price_stmt->execute();
-        $price_result = $price_stmt->get_result();
-        $product_price = 0;
+        // Call the stored procedure
+        $stmt = $conn->prepare("CALL AddToWishlist(?, ?)");
+        $stmt->bind_param("ii", $user_id, $product_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $wishlist_id = 0;
         
-        if ($price_result->num_rows > 0) {
-            $product_price = $price_result->fetch_assoc()['price'];
+        if ($result && $row = $result->fetch_assoc()) {
+            $wishlist_id = $row['wishlist_id'];
         }
-        $price_stmt->close();
         
-        // Add or update product in wishlist
-        $upsert_query = "INSERT INTO Wishlist_Contains (wishlist_id, product_id, quantity) 
-                        VALUES (?, ?, ?) 
-                        ON DUPLICATE KEY UPDATE quantity = VALUES(quantity)";
-        $upsert_stmt = $conn->prepare($upsert_query);
-        $upsert_stmt->bind_param("iii", $wishlist_id, $product_id, $quantity);
-        $upsert_stmt->execute();
-        $upsert_stmt->close();
-        
-        // Update subtotal
-        $update_subtotal = "UPDATE Wishlist w SET w.subtotal = (
-                            SELECT SUM(p.price * wc.quantity) 
-                            FROM Wishlist_Contains wc 
-                            JOIN Products p ON wc.product_id = p.product_id 
-                            WHERE wc.wishlist_id = w.wishlist_id
-                            )
-                            WHERE w.wishlist_id = ?";
-        $subtotal_stmt = $conn->prepare($update_subtotal);
-        $subtotal_stmt->bind_param("i", $wishlist_id);
-        $subtotal_stmt->execute();
-        $subtotal_stmt->close();
-        
-        // Commit transaction
-        $conn->commit();
+        $stmt->close();
         
         // Success response
         $response = [
@@ -84,9 +79,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($data["action"]) && $data["act
             'wishlist_id' => $wishlist_id
         ];
     } catch (Exception $e) {
-        // Rollback transaction
-        $conn->rollback();
-        
         // Error response
         $response = [
             'success' => false,
