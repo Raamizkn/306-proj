@@ -13,7 +13,7 @@ BEGIN
         s.delivery_date
     FROM 
         Orders o
-    JOIN 
+    LEFT JOIN 
         Shipment s ON o.order_id = s.order_id
     WHERE 
         o.order_id = p_order_id;

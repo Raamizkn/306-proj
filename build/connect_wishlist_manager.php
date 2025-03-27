@@ -2,6 +2,11 @@
 header('Content-Type: application/json');
 require_once 'db_connection.php';
 
+// Enable error logging
+ini_set('display_errors', 1);
+ini_set('log_errors', 1);
+error_log("WISHLIST MANAGER - Starting stored procedure test");
+
 // Get data from POST request
 $data = json_decode(file_get_contents('php://input'), true);
 
@@ -12,60 +17,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($data["action"]) && $data["act
     $user_id = $data["user_id"];
     $product_id = $data["product_id"];
     
+    error_log("WISHLIST MANAGER - About to call AddToWishlist($user_id, $product_id)");
+    
     try {
-        // First check if the AddToWishlist stored procedure exists
-        $check_proc = $conn->query("SHOW PROCEDURE STATUS WHERE Db = '306_project' AND Name = 'AddToWishlist'");
-        
-        if ($check_proc->num_rows == 0) {
-            // Create the stored procedure if it doesn't exist
-            $create_proc = "
-                CREATE PROCEDURE AddToWishlist(
-                    IN p_user_id INT,
-                    IN p_product_id INT
-                )
-                BEGIN
-                    DECLARE v_wishlist_id INT DEFAULT NULL;
-                    
-                    -- Get wishlist ID for user
-                    SELECT wishlist_id INTO v_wishlist_id FROM Wishlist WHERE user_id = p_user_id LIMIT 1;
-                    
-                    -- Create wishlist if it doesn't exist
-                    IF v_wishlist_id IS NULL THEN
-                        INSERT INTO Wishlist (user_id, subtotal) VALUES (p_user_id, 0);
-                        SET v_wishlist_id = LAST_INSERT_ID();
-                    END IF;
-                    
-                    -- Add or update product in wishlist
-                    INSERT INTO Wishlist_Contains (wishlist_id, product_id, quantity) 
-                    VALUES (v_wishlist_id, p_product_id, 1) 
-                    ON DUPLICATE KEY UPDATE quantity = quantity + 1;
-                    
-                    -- Update subtotal
-                    UPDATE Wishlist w SET w.subtotal = (
-                        SELECT SUM(p.price * wc.quantity) 
-                        FROM Wishlist_Contains wc 
-                        JOIN Products p ON wc.product_id = p.product_id 
-                        WHERE wc.wishlist_id = w.wishlist_id
-                    )
-                    WHERE w.wishlist_id = v_wishlist_id;
-                    
-                    -- Return the wishlist id
-                    SELECT v_wishlist_id AS wishlist_id;
-                END;
-            ";
-            
-            $conn->query($create_proc);
-        }
-        
-        // Call the stored procedure
+        // Call the AddToWishlist stored procedure
         $stmt = $conn->prepare("CALL AddToWishlist(?, ?)");
         $stmt->bind_param("ii", $user_id, $product_id);
         $stmt->execute();
+        
+        error_log("WISHLIST MANAGER - AddToWishlist executed successfully");
+        
         $result = $stmt->get_result();
         $wishlist_id = 0;
         
         if ($result && $row = $result->fetch_assoc()) {
             $wishlist_id = $row['wishlist_id'];
+            error_log("WISHLIST MANAGER - Retrieved wishlist_id: $wishlist_id");
+        } else {
+            error_log("WISHLIST MANAGER - No result from stored procedure");
         }
         
         $stmt->close();
@@ -80,6 +49,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($data["action"]) && $data["act
         ];
     } catch (Exception $e) {
         // Error response
+        error_log("WISHLIST MANAGER - Exception: " . $e->getMessage());
         $response = [
             'success' => false,
             'message' => 'Database error: ' . $e->getMessage()
@@ -94,6 +64,7 @@ else if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($data["action"]) && $data
          && isset($data["user_id"])) {
     
     $user_id = $data["user_id"];
+    error_log("WISHLIST MANAGER - Getting wishlist items for user_id: $user_id");
     
     // Query to get wishlist items with product details
     $query = "SELECT w.wishlist_id, w.user_id, w.subtotal,
@@ -118,6 +89,8 @@ else if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($data["action"]) && $data
             $wishlist_items[] = $row;
         }
         
+        error_log("WISHLIST MANAGER - Retrieved " . count($wishlist_items) . " wishlist items");
+        
         // Get wishlist summary
         $summary_query = "SELECT subtotal FROM Wishlist WHERE user_id = ?";
         $summary_stmt = $conn->prepare($summary_query);
@@ -128,6 +101,7 @@ else if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($data["action"]) && $data
         
         if ($summary_result->num_rows > 0) {
             $subtotal = $summary_result->fetch_assoc()['subtotal'];
+            error_log("WISHLIST MANAGER - Retrieved subtotal: $subtotal");
         }
         $summary_stmt->close();
         
@@ -143,6 +117,7 @@ else if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($data["action"]) && $data
         $stmt->close();
     } else {
         // Error preparing statement
+        error_log("WISHLIST MANAGER - Failed to prepare statement: " . $conn->error);
         $response = [
             'success' => false,
             'message' => 'Database error: ' . $conn->error
@@ -153,11 +128,13 @@ else if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($data["action"]) && $data
     echo json_encode($response);
 } else {
     // If not a valid request
+    error_log("WISHLIST MANAGER - Invalid request, missing required parameters");
     echo json_encode([
         'success' => false,
         'message' => 'Invalid request. Required parameters are missing.'
     ]);
 }
 
+error_log("WISHLIST MANAGER - Completed processing");
 $conn->close();
 ?> 

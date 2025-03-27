@@ -1,6 +1,6 @@
 DELIMITER //
 
-CREATE PROCEDURE GetUserOrderHistory(
+CREATE PROCEDURE OrderStatus(
     IN p_user_id INT, 
     IN p_start_date DATE, 
     IN p_end_date DATE

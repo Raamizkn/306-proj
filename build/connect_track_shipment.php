@@ -2,39 +2,55 @@
 header('Content-Type: application/json');
 require_once 'db_connection.php';
 
+// Enable error logging
+ini_set('display_errors', 1);
+ini_set('log_errors', 1);
+error_log("TRACK SHIPMENT - Starting stored procedure test");
+
 // Get data from POST request
 $data = json_decode(file_get_contents('php://input'), true);
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($data["order_id"])) {
     $order_id = $data["order_id"];
     
-    // Query the order and shipment information directly instead of using a stored procedure
-    $query = "SELECT o.order_id, o.order_date, o.order_status, 
-                     s.shipment_id, s.shipment_status, s.shipment_date, s.delivery_date,
-                     (SELECT COUNT(*) FROM Order_Contains oc WHERE oc.order_id = o.order_id) as item_count
-              FROM Orders o
-              LEFT JOIN Shipment s ON o.order_id = s.order_id
-              WHERE o.order_id = ?";
+    error_log("TRACK SHIPMENT - About to call TrackOrder($order_id)");
     
-    $stmt = $conn->prepare($query);
-    
-    if ($stmt) {
+    try {
+        // Call the TrackOrder stored procedure
+        $stmt = $conn->prepare("CALL TrackOrder(?)");
         $stmt->bind_param("i", $order_id);
         $stmt->execute();
         
+        error_log("TRACK SHIPMENT - TrackOrder executed successfully");
+        
+        // Get order and shipment details
         $result = $stmt->get_result();
         if ($result && $result->num_rows > 0) {
             $shipment_data = $result->fetch_assoc();
+            error_log("TRACK SHIPMENT - First result set retrieved successfully");
+            
+            // Get next result set (product details for the order)
+            $stmt->next_result();
+            $items_result = $stmt->get_result();
+            $order_items = [];
+            
+            while ($item = $items_result->fetch_assoc()) {
+                $order_items[] = $item;
+            }
+            
+            error_log("TRACK SHIPMENT - Second result set retrieved successfully, items count: " . count($order_items));
             
             // Success response
             $response = [
                 'success' => true,
-                'message' => 'Order found!',
+                'message' => 'Order tracking information found!',
                 'order_id' => $order_id,
-                'shipment' => $shipment_data
+                'shipment' => $shipment_data,
+                'items' => $order_items
             ];
         } else {
             // No order found
+            error_log("TRACK SHIPMENT - No shipment information found for order_id: $order_id");
             $response = [
                 'success' => false,
                 'message' => 'Order not found or has no shipment information.',
@@ -43,11 +59,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($data["order_id"])) {
         }
         
         $stmt->close();
-    } else {
-        // Error preparing statement
+    } catch (Exception $e) {
+        // Error response
+        error_log("TRACK SHIPMENT - Exception: " . $e->getMessage());
         $response = [
             'success' => false,
-            'message' => 'Database error: ' . $conn->error,
+            'message' => 'Database error: ' . $e->getMessage(),
             'order_id' => $order_id
         ];
     }
@@ -56,11 +73,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($data["order_id"])) {
     echo json_encode($response);
 } else {
     // If not a valid request
+    error_log("TRACK SHIPMENT - Invalid request, missing order_id");
     echo json_encode([
         'success' => false,
         'message' => 'Invalid request. Order ID is required.'
     ]);
 }
 
+error_log("TRACK SHIPMENT - Completed processing");
 $conn->close();
 ?> 

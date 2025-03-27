@@ -2,6 +2,11 @@
 header('Content-Type: application/json');
 require_once 'db_connection.php';
 
+// Enable error logging
+ini_set('display_errors', 1);
+ini_set('log_errors', 1);
+error_log("PRODUCT REVIEW - Starting stored procedure test");
+
 // Get data from POST request
 $data = json_decode(file_get_contents('php://input'), true);
 
@@ -13,27 +18,58 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($data["user_id"]) && isset($da
     $rating = $data["rating"];
     $comment = $data["review_text"];
     
+    error_log("PRODUCT REVIEW - About to call AddReview($user_id, $product_id, $rating)");
+    
     try {
-        // Insert the review directly with SQL
-        $stmt = $conn->prepare("INSERT INTO Reviews (user_id, product_id, rating, comment) VALUES (?, ?, ?, ?)");
-        
+        // Call the AddReview stored procedure
+        $stmt = $conn->prepare("CALL AddReview(?, ?, ?, ?)");
         $stmt->bind_param("iiis", $user_id, $product_id, $rating, $comment);
         $stmt->execute();
-        $review_id = $stmt->insert_id;
         
-        // Success response
-        $response = [
-            'success' => true,
-            'message' => 'Review added successfully!',
-            'review_id' => $review_id,
-            'user_id' => $user_id,
-            'product_id' => $product_id,
-            'rating' => $rating
-        ];
+        error_log("PRODUCT REVIEW - AddReview executed successfully");
+        
+        $result = $stmt->get_result();
+        
+        if ($result) {
+            $message = $result->fetch_assoc()['message'];
+            error_log("PRODUCT REVIEW - First result set retrieved: $message");
+            
+            // Check if there's a review details result set
+            if ($stmt->more_results()) {
+                $stmt->next_result();
+                $review_result = $stmt->get_result();
+                $review_data = $review_result->fetch_assoc();
+                
+                error_log("PRODUCT REVIEW - Second result set retrieved with review details");
+                
+                // Success response with review details
+                $response = [
+                    'success' => true,
+                    'message' => $message,
+                    'review_data' => $review_data
+                ];
+            } else {
+                error_log("PRODUCT REVIEW - No second result set available");
+                
+                // Success response with just the message
+                $response = [
+                    'success' => ($message === 'Review submitted successfully'),
+                    'message' => $message
+                ];
+            }
+        } else {
+            // No result from the stored procedure
+            error_log("PRODUCT REVIEW - No result from stored procedure");
+            $response = [
+                'success' => false,
+                'message' => 'Error submitting review: No response from procedure'
+            ];
+        }
         
         $stmt->close();
     } catch (Exception $e) {
         // Error response
+        error_log("PRODUCT REVIEW - Exception: " . $e->getMessage());
         $response = [
             'success' => false,
             'message' => 'Database error: ' . $e->getMessage()
@@ -113,11 +149,13 @@ else if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($data["action"]) && $data
     echo json_encode($response);
 } else {
     // If not a valid request
+    error_log("PRODUCT REVIEW - Invalid request, missing required parameters");
     echo json_encode([
         'success' => false,
         'message' => 'Invalid request. Required parameters are missing.'
     ]);
 }
 
+error_log("PRODUCT REVIEW - Completed processing");
 $conn->close();
 ?> 

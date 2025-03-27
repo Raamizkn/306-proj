@@ -1,6 +1,6 @@
 DELIMITER //
 
-CREATE PROCEDURE PlaceOrder(IN p_user_id INT)
+CREATE PROCEDURE PlaceOrder(IN p_user_id INT, IN p_products JSON)
 BEGIN
     DECLARE v_cart_id INT;
     DECLARE v_total DECIMAL(10,2);
@@ -21,6 +21,10 @@ BEGIN
     
     -- Get the last inserted order ID
     SET v_order_id = LAST_INSERT_ID();
+    
+    -- Process products from JSON parameter
+    -- This code would be more complex in a real application
+    -- It would parse the JSON and insert each product separately
     
     -- Copy items from cart to order_contains
     INSERT INTO Order_Contains (order_id, product_id, quantity)

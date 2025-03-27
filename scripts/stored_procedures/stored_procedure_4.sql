@@ -1,6 +1,6 @@
 DELIMITER //
 
-CREATE PROCEDURE WriteReview(
+CREATE PROCEDURE AddReview(
     IN p_user_id INT, 
     IN p_product_id INT, 
     IN p_rating INT, 

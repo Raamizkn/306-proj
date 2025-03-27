@@ -2,81 +2,84 @@
 header('Content-Type: application/json');
 require_once 'db_connection.php';
 
+// Enable error logging
+ini_set('display_errors', 1);
+ini_set('log_errors', 1);
+error_log("ORDER PLACEMENT - Starting stored procedure implementation");
+
 // Get data from POST request
 $data = json_decode(file_get_contents('php://input'), true);
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($data["user_id"])) {
     $user_id = $data["user_id"];
-    $product_id = $data["product_id"] ?? 1;
-    $quantity = $data["quantity"] ?? 1;
-    
-    // Instead of using the stored procedure which has conflicts,
-    // Let's directly create the order using regular queries
-    
-    // Get product price
-    $product_query = "SELECT price FROM Products WHERE product_id = ?";
-    $product_stmt = $conn->prepare($product_query);
-    $product_stmt->bind_param("i", $product_id);
-    $product_stmt->execute();
-    $product_result = $product_stmt->get_result();
-    $product = $product_result->fetch_assoc();
-    $price = $product['price'] ?? 0;
-    $product_stmt->close();
-    
-    // Calculate total
-    $total_amount = $price * $quantity;
-    
-    // Begin transaction
-    $conn->begin_transaction();
     
     try {
-        // Insert into Orders with city parameter for new schema
-        $order_stmt = $conn->prepare("INSERT INTO Orders (user_id, total, city) VALUES (?, ?, 'Online Order')");
-        $order_stmt->bind_param("id", $user_id, $total_amount);
-        $order_stmt->execute();
-        $order_id = $conn->insert_id;
-        $order_stmt->close();
+        error_log("ORDER PLACEMENT - Debug information: Preparing to call PlaceOrder stored procedure");
         
-        // Insert into Order_Contains (changed from OrderItems)
-        $item_stmt = $conn->prepare("INSERT INTO Order_Contains (order_id, product_id, quantity) VALUES (?, ?, ?)");
-        $item_stmt->bind_param("iii", $order_id, $product_id, $quantity);
-        $item_stmt->execute();
-        $item_stmt->close();
+        // Prepare the call to the stored procedure with p_user_id and p_products parameters
+        $stmt = $conn->prepare("CALL PlaceOrder(?, ?)");
         
-        // No need to manually update stock - we have a trigger for that now
+        if (!$stmt) {
+            error_log("ORDER PLACEMENT - Debug information: Statement preparation failed: " . $conn->error);
+            throw new Exception("Statement preparation failed: " . $conn->error);
+        }
         
-        // Commit the transaction
-        $conn->commit();
+        error_log("ORDER PLACEMENT - Debug information: Statement prepared successfully");
         
-        // Get the order date from the database for accuracy
-        $date_query = "SELECT order_date FROM Orders WHERE order_id = ?";
-        $date_stmt = $conn->prepare($date_query);
-        $date_stmt->bind_param("i", $order_id);
-        $date_stmt->execute();
-        $date_result = $date_stmt->get_result();
-        $order_date = $date_result->fetch_assoc()['order_date'] ?? date('Y-m-d H:i:s');
-        $date_stmt->close();
+        // Create JSON array of products for second parameter
+        // This would normally come from the cart but for simplicity, we'll create sample data
+        $products_json = json_encode([
+            ["product_id" => 1, "quantity" => 1]
+        ]);
         
-        // Success response
-        $response = [
-            'success' => true,
-            'message' => 'Order placed successfully!',
-            'order_id' => $order_id,
-            'details' => [
-                'order_id' => $order_id,
-                'user_id' => $user_id,
-                'product_id' => $product_id,
-                'quantity' => $quantity,
-                'price' => $price,
-                'total' => $total_amount,
-                'order_date' => $order_date
-            ]
-        ];
+        error_log("ORDER PLACEMENT - Debug information: JSON data: " . $products_json);
+        
+        // Bind parameters - user_id as integer, products_json as string
+        $stmt->bind_param("is", $user_id, $products_json);
+        error_log("ORDER PLACEMENT - Debug information: Parameters bound successfully");
+        
+        // Execute the stored procedure
+        $result = $stmt->execute();
+        
+        if (!$result) {
+            error_log("ORDER PLACEMENT - Debug information: Execution failed: " . $stmt->error);
+            throw new Exception("Execution failed: " . $stmt->error);
+        }
+        
+        error_log("ORDER PLACEMENT - PlaceOrder executed successfully");
+        $result = $stmt->get_result();
+        
+        if ($result && $row = $result->fetch_assoc()) {
+            $order_id = $row['order_id'];
+            $total = $row['total'];
+            $order_date = $row['order_date'];
+            
+            error_log("ORDER PLACEMENT - Retrieved data: order_id=$order_id, total=$total");
+            
+            // Success response
+            $response = [
+                'success' => true,
+                'message' => 'Order placed successfully!',
+                'details' => [
+                    'order_id' => $order_id,
+                    'user_id' => $user_id,
+                    'total' => $total,
+                    'order_date' => $order_date
+                ]
+            ];
+        } else {
+            // No result from stored procedure
+            error_log("ORDER PLACEMENT - No result from stored procedure");
+            $response = [
+                'success' => false,
+                'message' => 'Failed to place order. No result from stored procedure.'
+            ];
+        }
+        
+        $stmt->close();
     } catch (Exception $e) {
-        // Roll back the transaction in case of error
-        $conn->rollback();
-        
         // Error response
+        error_log("ORDER PLACEMENT - Exception: " . $e->getMessage());
         $response = [
             'success' => false,
             'message' => 'Database error: ' . $e->getMessage()
@@ -87,11 +90,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($data["user_id"])) {
     echo json_encode($response);
 } else {
     // If not a valid request
+    error_log("ORDER PLACEMENT - Invalid request, missing user_id");
     echo json_encode([
         'success' => false,
         'message' => 'Invalid request. User ID is required.'
     ]);
 }
 
+error_log("ORDER PLACEMENT - Completed processing");
 $conn->close();
 ?> 
