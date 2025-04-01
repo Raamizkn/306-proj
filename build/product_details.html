@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details - MyStore</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f8f9fa;
+            padding-top: 56px;
+        }
+        .footer {
+            background-color: #343a40;
+            color: #f8f9fa;
+            padding: 40px 20px;
+            margin-top: 50px;
+            text-align: center;
+        }
+        .page-banner {
+            background-color: #e9ecef;
+            padding: 30px 0;
+            margin-bottom: 30px;
+        }
+        .product-image {
+            max-height: 400px;
+            object-fit: contain;
+            width: 100%;
+        }
+        .product-price {
+            font-size: 1.8rem;
+            color: #0d6efd;
+        }
+        .product-details {
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        .quantity-selector {
+            width: 120px;
+        }
+        .review {
+            margin-bottom: 15px;
+            border-bottom: 1px solid #e9ecef;
+            padding-bottom: 15px;
+        }
+        .review:last-child {
+            border-bottom: none;
+        }
+        .star-rating {
+            color: #ffc107;
+        }
+        .review-date {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        #related-products {
+            margin-top: 40px;
+        }
+        .product-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            margin-bottom: 20px;
+            height: 100%;
+        }
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .card-img-top {
+            height: 200px;
+            object-fit: cover;
+        }
+        .loader-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 300px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="index.html">MyStore</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="products.html">All Products</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="categoriesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Categories
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="categoriesDropdown" id="category-dropdown">
+                            <li><a class="dropdown-item" href="products.html">All Categories</a></li>
+                            <!-- Categories will be populated dynamically -->
+                        </ul>
+                    </li>
+                </ul>
+                <form class="d-flex me-2">
+                    <input class="form-control me-2" type="search" placeholder="Search products..." aria-label="Search">
+                    <button class="btn btn-outline-light" type="submit">Search</button>
+                </form>
+                <ul class="navbar-nav ms-auto">
+                     <li class="nav-item">
+                        <a class="nav-link" href="wishlist_manager.html"><i class="fas fa-heart"></i> Wishlist</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="order_placement.html"><i class="fas fa-shopping-cart"></i> Cart</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownAccount" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-user"></i> Account
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownAccount">
+                            <li><a class="dropdown-item" href="order_status.html">Order Status</a></li>
+                            <li><a class="dropdown-item" href="track_shipment.html">Track Shipment</a></li>
+                            <li><a class="dropdown-item" href="product_review.html">Product Reviews</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div id="page-content">
+        <!-- Content will be loaded dynamically -->
+        <div class="loader-container">
+            <div class="text-center">
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-2">Loading product details...</p>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <h5>MyStore</h5>
+                    <p>Your favorite online store.</p>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <h5>Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-white">About Us</a></li>
+                        <li><a href="#" class="text-white">Contact</a></li>
+                        <li><a href="#" class="text-white">FAQ</a></li>
+                        <li><a href="#" class="text-white">Terms of Service</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <h5>Follow Us</h5>
+                    <a href="#" class="text-white me-2"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="text-white me-2"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="text-white"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+            <hr style="border-color: rgba(255, 255, 255, 0.1);">
+            <p class="mb-0">&copy; 2024 MyStore. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Global variables
+        let allProducts = [];
+        let currentProduct = null;
+        
+        // Helper function to get URL parameters
+        function getUrlParameter(name) {
+            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+            const regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+            const results = regex.exec(location.search);
+            return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+        }
+        
+        // Load product details when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            const productId = getUrlParameter('id');
+            
+            if (!productId) {
+                showError('Product ID is missing. Please go back to the products page and try again.');
+                return;
+            }
+            
+            // Fetch all products
+            fetch('get_products.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        allProducts = data.products;
+                        
+                        // Find the current product
+                        currentProduct = allProducts.find(product => product.product_id == productId);
+                        
+                        if (currentProduct) {
+                            // Update page title
+                            document.title = `${currentProduct.name} - MyStore`;
+                            
+                            // Render product details
+                            renderProductDetails();
+                        } else {
+                            showError('Product not found. It may have been removed or is no longer available.');
+                        }
+                    } else {
+                        showError(`Error loading products: ${data.message}`);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showError('Failed to load product details. Please try again later.');
+                });
+        });
+        
+        // Show error message
+        function showError(message) {
+            const pageContent = document.getElementById('page-content');
+            pageContent.innerHTML = `
+                <div class="container mt-5">
+                    <div class="alert alert-danger">
+                        <h4 class="alert-heading">Error</h4>
+                        <p>${message}</p>
+                        <hr>
+                        <p class="mb-0">
+                            <a href="products.html" class="alert-link">Return to products page</a>
+                        </p>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Render product details
+        function renderProductDetails() {
+            const pageContent = document.getElementById('page-content');
+            
+            // Get related products (4 random products excluding current one)
+            const relatedProducts = allProducts
+                .filter(product => product.product_id != currentProduct.product_id)
+                .sort(() => 0.5 - Math.random())
+                .slice(0, 4);
+            
+            // Create a simple product review system (dummy data)
+            const reviewsHTML = generateDummyReviews();
+            
+            // Generate image URL (placeholder if not available)
+            const imageUrl = currentProduct.image_url || 
+                `https://via.placeholder.com/600x400.png?text=${encodeURIComponent(currentProduct.name)}`;
+            
+            pageContent.innerHTML = `
+                <div class="page-banner">
+                    <div class="container">
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+                                <li class="breadcrumb-item"><a href="products.html">Products</a></li>
+                                <li class="breadcrumb-item active" aria-current="page">${currentProduct.name}</li>
+                            </ol>
+                        </nav>
+                    </div>
+                </div>
+                
+                <div class="container">
+                    <div class="product-details">
+                        <div class="row">
+                            <!-- Product Image -->
+                            <div class="col-md-5 mb-4">
+                                <img src="${imageUrl}" class="product-image rounded" alt="${currentProduct.name}">
+                            </div>
+                            
+                            <!-- Product Info -->
+                            <div class="col-md-7">
+                                <h1>${currentProduct.name}</h1>
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="star-rating me-2">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="far fa-star"></i>
+                                    </div>
+                                    <span>4.0 (${Math.floor(Math.random() * 50) + 5} reviews)</span>
+                                </div>
+                                <p class="product-price mb-3">$${parseFloat(currentProduct.price).toFixed(2)}</p>
+                                <p class="mb-4">${currentProduct.description || 'No description available for this product.'}</p>
+                                
+                                <div class="mb-4">
+                                    <label for="quantity" class="form-label">Quantity</label>
+                                    <div class="input-group quantity-selector mb-3">
+                                        <button class="btn btn-outline-secondary" type="button" id="decrease-quantity">-</button>
+                                        <input type="number" class="form-control text-center" id="quantity" value="1" min="1">
+                                        <button class="btn btn-outline-secondary" type="button" id="increase-quantity">+</button>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-grid gap-2 d-md-flex">
+                                    <a href="order_placement.html?product_id=${currentProduct.product_id}" class="btn btn-primary btn-lg flex-grow-1">Add to Cart</a>
+                                    <a href="wishlist_manager.html?product_id=${currentProduct.product_id}" class="btn btn-outline-secondary btn-lg"><i class="fas fa-heart"></i></a>
+                                </div>
+                                
+                                <hr class="my-4">
+                                
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <p><i class="fas fa-shipping-fast me-2"></i> Free shipping</p>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <p><i class="fas fa-undo me-2"></i> 30-day returns</p>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <p><i class="fas fa-shield-alt me-2"></i> 2-year warranty</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Product Details Tabs -->
+                    <div class="product-details mb-4">
+                        <ul class="nav nav-tabs" id="productTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="description-tab" data-bs-toggle="tab" data-bs-target="#description" type="button" role="tab" aria-controls="description" aria-selected="true">Description</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="specifications-tab" data-bs-toggle="tab" data-bs-target="#specifications" type="button" role="tab" aria-controls="specifications" aria-selected="false">Specifications</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews" type="button" role="tab" aria-controls="reviews" aria-selected="false">Reviews</button>
+                            </li>
+                        </ul>
+                        <div class="tab-content p-3" id="productTabsContent">
+                            <div class="tab-pane fade show active" id="description" role="tabpanel" aria-labelledby="description-tab">
+                                <h3>Product Description</h3>
+                                <p>${currentProduct.description || 'No detailed description available for this product.'}</p>
+                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+                            </div>
+                            <div class="tab-pane fade" id="specifications" role="tabpanel" aria-labelledby="specifications-tab">
+                                <h3>Product Specifications</h3>
+                                <table class="table table-bordered">
+                                    <tbody>
+                                        <tr>
+                                            <th scope="row">Product ID</th>
+                                            <td>${currentProduct.product_id}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">Name</th>
+                                            <td>${currentProduct.name}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">Price</th>
+                                            <td>$${parseFloat(currentProduct.price).toFixed(2)}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">In Stock</th>
+                                            <td>Yes</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="tab-pane fade" id="reviews" role="tabpanel" aria-labelledby="reviews-tab">
+                                <h3>Customer Reviews</h3>
+                                <div class="reviews-container">
+                                    ${reviewsHTML}
+                                </div>
+                                <div class="mt-4">
+                                    <a href="product_review.html?product_id=${currentProduct.product_id}" class="btn btn-primary">Write a Review</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Related Products -->
+                    <div id="related-products">
+                        <h2 class="mb-4">Related Products</h2>
+                        <div class="row">
+                            ${renderRelatedProducts(relatedProducts)}
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Add event listeners for quantity buttons
+            document.getElementById('decrease-quantity').addEventListener('click', function() {
+                const quantityInput = document.getElementById('quantity');
+                const currentValue = parseInt(quantityInput.value);
+                if (currentValue > 1) {
+                    quantityInput.value = currentValue - 1;
+                }
+            });
+            
+            document.getElementById('increase-quantity').addEventListener('click', function() {
+                const quantityInput = document.getElementById('quantity');
+                const currentValue = parseInt(quantityInput.value);
+                quantityInput.value = currentValue + 1;
+            });
+        }
+        
+        // Generate dummy reviews for the product
+        function generateDummyReviews() {
+            const reviewCount = Math.floor(Math.random() * 5) + 2; // 2-6 reviews
+            let reviewsHTML = '';
+            
+            const reviewers = ['John D.', 'Sarah M.', 'Robert L.', 'Emily K.', 'Michael P.', 'Jessica R.'];
+            const reviewTexts = [
+                'Great product! Exactly what I was looking for.',
+                'Good quality and fast shipping. Very satisfied with my purchase.',
+                'Works as expected. Would recommend to others.',
+                'Nice product but the delivery took longer than expected.',
+                'Excellent value for money. Will buy again.',
+                'Decent product but I expected better quality for the price.'
+            ];
+            
+            for (let i = 0; i < reviewCount; i++) {
+                const stars = Math.floor(Math.random() * 2) + 3; // 3-5 stars
+                const date = new Date();
+                date.setDate(date.getDate() - Math.floor(Math.random() * 60)); // Random date in the last 60 days
+                
+                const starsHTML = Array(5).fill(0).map((_, index) => 
+                    index < stars 
+                        ? '<i class="fas fa-star"></i>' 
+                        : '<i class="far fa-star"></i>'
+                ).join('');
+                
+                reviewsHTML += `
+                    <div class="review">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h5 class="mb-0">${reviewers[i % reviewers.length]}</h5>
+                            <div class="star-rating">
+                                ${starsHTML}
+                            </div>
+                        </div>
+                        <p class="review-date">${date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                        <p>${reviewTexts[i % reviewTexts.length]}</p>
+                    </div>
+                `;
+            }
+            
+            return reviewsHTML;
+        }
+        
+        // Render related products
+        function renderRelatedProducts(products) {
+            if (products.length === 0) {
+                return '<div class="col-12 text-center"><p>No related products found.</p></div>';
+            }
+            
+            return products.map(product => {
+                // Generate image URL (placeholder if not available)
+                const imageUrl = product.image_url || 
+                    `https://via.placeholder.com/300x200.png?text=${encodeURIComponent(product.name)}`;
+                
+                return `
+                    <div class="col-md-6 col-lg-3 mb-4">
+                        <div class="card product-card">
+                            <img src="${imageUrl}" class="card-img-top" alt="${product.name}">
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title">${product.name}</h5>
+                                <p class="card-text"><strong>$${parseFloat(product.price).toFixed(2)}</strong></p>
+                                <div class="btn-container mt-auto text-center">
+                                    <a href="product_details.html?id=${product.product_id}" class="btn btn-outline-secondary btn-sm me-1">View</a>
+                                    <a href="order_placement.html?product_id=${product.product_id}" class="btn btn-primary btn-sm">Add to Cart</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+    </script>
+</body>
+</html> 

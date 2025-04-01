@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order Placement</title>
+    <title>Shopping Cart - MyStore</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body {
             font-family: 'Arial', sans-serif;
             background-color: #f8f9fa;
-            padding: 20px;
+            padding-top: 56px;
         }
         .container {
             max-width: 1200px;
@@ -65,44 +66,120 @@
         .form-select, .form-control {
             margin-bottom: 10px;
         }
+        .page-banner {
+            background-color: #e9ecef;
+            padding: 30px 0;
+            margin-bottom: 30px;
+        }
+        .footer {
+            background-color: #343a40;
+            color: #f8f9fa;
+            padding: 40px 20px;
+            margin-top: 50px;
+            text-align: center;
+        }
+        .cart-item {
+            border-bottom: 1px solid #dee2e6;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+        .cart-item:last-child {
+            border-bottom: none;
+        }
+        .cart-item-image {
+            max-width: 100px;
+            max-height: 100px;
+            object-fit: cover;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>Order Placement</h1>
-            <p class="lead">Complete your purchase quickly and securely</p>
-            <div class="navigation">
-                <a href="index.html" class="btn btn-outline-secondary">Back to Home</a>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="index.html">MyStore</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="products.html">All Products</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="categoriesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Categories
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="categoriesDropdown" id="category-dropdown">
+                            <li><a class="dropdown-item" href="products.html">All Categories</a></li>
+                            <!-- Categories will be populated dynamically -->
+                        </ul>
+                    </li>
+                </ul>
+                <form class="d-flex me-2">
+                    <input class="form-control me-2" type="search" placeholder="Search products..." aria-label="Search">
+                    <button class="btn btn-outline-light" type="submit">Search</button>
+                </form>
+                <ul class="navbar-nav ms-auto">
+                     <li class="nav-item">
+                        <a class="nav-link" href="wishlist_manager.html"><i class="fas fa-heart"></i> Wishlist</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="order_placement.html"><i class="fas fa-shopping-cart"></i> Cart</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownAccount" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-user"></i> Account
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownAccount">
+                            <li><a class="dropdown-item" href="order_status.html">Order Status</a></li>
+                            <li><a class="dropdown-item" href="track_shipment.html">Track Shipment</a></li>
+                            <li><a class="dropdown-item" href="product_review.html">Product Reviews</a></li>
+                        </ul>
+                    </li>
+                </ul>
             </div>
         </div>
-        
+    </nav>
+
+    <div class="page-banner">
+        <div class="container">
+            <h1>Shopping Cart</h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Cart</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+    
+    <div class="container">
         <!-- Input Form (for screenshot 1) -->
         <div class="row">
             <div class="col-md-8 mx-auto">
                 <div class="form-container">
-                    <h2 class="mb-4">Create New Order</h2>
+                    <h2 class="mb-4">Your Shopping Cart</h2>
                     
                     <form id="orderForm">
+                        <div id="cart-items" class="mb-4">
+                            <!-- Cart items will be populated here -->
+                            <div class="text-center py-3">
+                                <div class="spinner-border" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <p>Loading cart items...</p>
+                            </div>
+                        </div>
+                        
                         <h3 class="h5 mb-3">Customer Information</h3>
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label for="user_id" class="form-label">User ID:</label>
                                 <input type="number" class="form-control" id="user_id" name="user_id" required min="1" value="3">
                             </div>
-                        </div>
-                        
-                        <h3 class="h5 mb-3 mt-4">Product Selection</h3>
-                        <div class="mb-3">
-                            <label for="product_id" class="form-label">Select Product:</label>
-                            <select class="form-select" id="product_id" name="product_id" required>
-                                <option value="">-- Loading Products --</option>
-                            </select>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="quantity" class="form-label">Quantity:</label>
-                            <input type="number" class="form-control" id="quantity" name="quantity" min="1" value="2" required>
                         </div>
                         
                         <h3 class="h5 mb-3 mt-4">Shipping Information</h3>
@@ -260,6 +337,7 @@
                                     <div class="d-grid gap-2">
                                         <a href="#" class="btn btn-outline-secondary">Print Receipt</a>
                                         <a href="track_shipment.html" class="btn btn-outline-primary">Track Order</a>
+                                        <a href="index.html" class="btn btn-outline-success">Continue Shopping</a>
                                     </div>
                                 </div>
                             </div>
@@ -270,31 +348,80 @@
         </div>
     </div>
     
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <h5>MyStore</h5>
+                    <p>Your favorite online store.</p>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <h5>Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-white">About Us</a></li>
+                        <li><a href="#" class="text-white">Contact</a></li>
+                        <li><a href="#" class="text-white">FAQ</a></li>
+                        <li><a href="#" class="text-white">Terms of Service</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <h5>Follow Us</h5>
+                    <a href="#" class="text-white me-2"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="text-white me-2"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="text-white"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+            <hr style="border-color: rgba(255, 255, 255, 0.1);">
+            <p class="mb-0">&copy; 2024 MyStore. All Rights Reserved.</p>
+        </div>
+    </footer>
+    
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // Global variables to store product data
         let productData = {};
+        let cartItems = [];
+        
+        // Helper function to get URL parameters
+        function getUrlParameter(name) {
+            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+            const regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+            const results = regex.exec(location.search);
+            return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+        }
         
         // Load products from the database when the page loads
         document.addEventListener('DOMContentLoaded', function() {
+            // Check if product_id and quantity are in the URL
+            const urlProductId = getUrlParameter('product_id');
+            const urlQuantity = getUrlParameter('quantity') || 1;
+            
             // Fetch products from API
             fetch('get_products.php')
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        const productSelect = document.getElementById('product_id');
-                        productSelect.innerHTML = '<option value="">-- Select a Product --</option>';
-                        
-                        // Add each product to the dropdown and store product data
+                        // Store product data for later use
                         data.products.forEach(product => {
-                            const option = document.createElement('option');
-                            option.value = product.product_id;
-                            option.textContent = `${product.name} - $${product.price}`;
-                            productSelect.appendChild(option);
-                            
-                            // Store product data for later use
                             productData[product.product_id] = product;
                         });
+                        
+                        // If product_id is in the URL, add it to the cart
+                        if (urlProductId && productData[urlProductId]) {
+                            addToCart(urlProductId, parseInt(urlQuantity));
+                        }
+                        
+                        // If there are no items in the cart, show empty cart message
+                        if (cartItems.length === 0) {
+                            document.getElementById('cart-items').innerHTML = `
+                                <div class="alert alert-info">
+                                    <p>Your cart is empty. <a href="products.html">Continue shopping</a></p>
+                                </div>
+                            `;
+                        } else {
+                            // Display cart items
+                            displayCartItems();
+                        }
                     } else {
                         alert('Error loading products: ' + data.message);
                     }
@@ -304,54 +431,197 @@
                     alert('Failed to load products. Please refresh the page.');
                 });
                 
-            // Update product details when a product is selected
-            document.getElementById('product_id').addEventListener('change', updateProductDetails);
+            // Toggle credit card fields based on payment method
+            document.getElementById('payment_method').addEventListener('change', function() {
+                const creditCardFields = document.getElementById('credit_card_fields');
+                if (this.value === 'credit_card') {
+                    creditCardFields.style.display = 'block';
+                } else {
+                    creditCardFields.style.display = 'none';
+                }
+            });
+            
+            // Update totals when shipping method changes
+            document.getElementById('shipping_method').addEventListener('change', updateOrderSummary);
         });
         
-        // Update product details when product selection changes
-        function updateProductDetails() {
-            const productId = document.getElementById('product_id').value;
-            const quantity = parseInt(document.getElementById('quantity').value);
+        // Add a product to the cart
+        function addToCart(productId, quantity) {
+            // Check if product already exists in cart
+            const existingItemIndex = cartItems.findIndex(item => item.product_id === productId);
             
-            if (productId && productData[productId]) {
-                const product = productData[productId];
-                const price = parseFloat(product.price);
-                const subtotal = price * quantity;
+            if (existingItemIndex >= 0) {
+                // Update quantity if product already in cart
+                cartItems[existingItemIndex].quantity += quantity;
+            } else {
+                // Add new item to cart
+                cartItems.push({
+                    product_id: productId,
+                    quantity: quantity
+                });
+            }
+            
+            // Update cart display
+            displayCartItems();
+            
+            // Update order summary
+            updateOrderSummary();
+        }
+        
+        // Display cart items
+        function displayCartItems() {
+            const cartContainer = document.getElementById('cart-items');
+            
+            if (cartItems.length === 0) {
+                cartContainer.innerHTML = `
+                    <div class="alert alert-info">
+                        <p>Your cart is empty. <a href="products.html">Continue shopping</a></p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let cartHTML = '';
+            
+            cartItems.forEach((item, index) => {
+                const product = productData[item.product_id];
+                const subtotal = product.price * item.quantity;
                 
-                // Update product details in the form
-                document.getElementById('productName').textContent = product.name;
-                document.getElementById('productPrice').textContent = `$${price.toFixed(2)}`;
-                document.getElementById('summaryQuantity').textContent = quantity;
-                document.getElementById('summarySubtotal').textContent = `$${subtotal.toFixed(2)}`;
-                document.getElementById('totalSubtotal').textContent = `$${subtotal.toFixed(2)}`;
+                // Create image URL (placeholder if not available)
+                const imageUrl = product.image_url || 
+                    `https://via.placeholder.com/100x100.png?text=${encodeURIComponent(product.name)}`;
                 
-                // Calculate tax and total
-                const tax = subtotal * 0.1;
-                const shipping = 9.99;
-                const total = subtotal + tax + shipping;
+                cartHTML += `
+                    <div class="cart-item">
+                        <div class="row align-items-center">
+                            <div class="col-2">
+                                <img src="${imageUrl}" alt="${product.name}" class="cart-item-image img-fluid rounded">
+                            </div>
+                            <div class="col-5">
+                                <h5>${product.name}</h5>
+                                <p class="text-muted small">${product.description ? product.description.substring(0, 60) + '...' : ''}</p>
+                            </div>
+                            <div class="col-2">
+                                <span class="fw-bold">$${parseFloat(product.price).toFixed(2)}</span>
+                            </div>
+                            <div class="col-2">
+                                <div class="input-group input-group-sm">
+                                    <button class="btn btn-outline-secondary" type="button" onclick="updateCartItemQuantity(${index}, ${item.quantity - 1})">-</button>
+                                    <input type="number" class="form-control text-center" value="${item.quantity}" min="1" onchange="updateCartItemQuantity(${index}, this.value)">
+                                    <button class="btn btn-outline-secondary" type="button" onclick="updateCartItemQuantity(${index}, ${item.quantity + 1})">+</button>
+                                </div>
+                            </div>
+                            <div class="col-1 text-end">
+                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeCartItem(${index})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            cartContainer.innerHTML = cartHTML;
+            
+            // Show the selected product in the product dropdown (for backwards compatibility)
+            if (cartItems.length > 0) {
+                // Set the value in the hidden product_id field
+                const productIdField = document.createElement('input');
+                productIdField.type = 'hidden';
+                productIdField.id = 'product_id';
+                productIdField.name = 'product_id';
+                productIdField.value = cartItems[0].product_id;
+                cartContainer.appendChild(productIdField);
                 
-                document.getElementById('taxAmount').textContent = `$${tax.toFixed(2)}`;
-                document.getElementById('totalAmount').textContent = `$${total.toFixed(2)}`;
-                
-                // Set estimated delivery date (7-10 days from now)
-                const today = new Date();
-                const deliveryDate = new Date(today);
-                deliveryDate.setDate(today.getDate() + 7);
-                const options = { year: 'numeric', month: 'long', day: 'numeric' };
-                document.getElementById('estimatedDelivery').textContent = deliveryDate.toLocaleDateString('en-US', options);
+                // Set the value in the hidden quantity field
+                const quantityField = document.createElement('input');
+                quantityField.type = 'hidden';
+                quantityField.id = 'quantity';
+                quantityField.name = 'quantity';
+                quantityField.value = cartItems[0].quantity;
+                cartContainer.appendChild(quantityField);
             }
         }
         
-        // Update product details when quantity changes
-        document.getElementById('quantity').addEventListener('change', updateProductDetails);
+        // Update cart item quantity
+        function updateCartItemQuantity(index, newQuantity) {
+            newQuantity = parseInt(newQuantity);
+            
+            if (newQuantity < 1) {
+                removeCartItem(index);
+                return;
+            }
+            
+            cartItems[index].quantity = newQuantity;
+            displayCartItems();
+            updateOrderSummary();
+        }
+        
+        // Remove item from cart
+        function removeCartItem(index) {
+            cartItems.splice(index, 1);
+            displayCartItems();
+            updateOrderSummary();
+        }
+        
+        // Update order summary
+        function updateOrderSummary() {
+            let subtotal = 0;
+            
+            // Calculate subtotal from all cart items
+            cartItems.forEach(item => {
+                const product = productData[item.product_id];
+                subtotal += product.price * item.quantity;
+            });
+            
+            // Get shipping cost
+            let shippingCost = 9.99; // Standard shipping
+            const shippingMethod = document.getElementById('shipping_method').value;
+            if (shippingMethod === 'express') {
+                shippingCost = 19.99;
+            } else if (shippingMethod === 'overnight') {
+                shippingCost = 29.99;
+            }
+            
+            // Calculate tax and total
+            const tax = subtotal * 0.1;
+            const total = subtotal + tax + shippingCost;
+            
+            // Update displayed values
+            document.getElementById('totalSubtotal').textContent = `$${subtotal.toFixed(2)}`;
+            document.getElementById('shippingCost').textContent = `$${shippingCost.toFixed(2)}`;
+            document.getElementById('taxAmount').textContent = `$${tax.toFixed(2)}`;
+            document.getElementById('totalAmount').textContent = `$${total.toFixed(2)}`;
+            
+            // Set estimated delivery date (7-10 days from now)
+            const today = new Date();
+            const deliveryDate = new Date(today);
+            deliveryDate.setDate(today.getDate() + 7);
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('estimatedDelivery').textContent = deliveryDate.toLocaleDateString('en-US', options);
+            
+            // If we have at least one item, update product details for the first item (for backward compatibility)
+            if (cartItems.length > 0) {
+                const firstItem = cartItems[0];
+                const product = productData[firstItem.product_id];
+                
+                document.getElementById('productName').textContent = product.name;
+                document.getElementById('productPrice').textContent = `$${parseFloat(product.price).toFixed(2)}`;
+                document.getElementById('summaryQuantity').textContent = firstItem.quantity;
+                document.getElementById('summarySubtotal').textContent = `$${(product.price * firstItem.quantity).toFixed(2)}`;
+            }
+        }
         
         document.getElementById('placeOrderBtn').addEventListener('click', function() {
             const userId = document.getElementById('user_id').value;
-            const productId = document.getElementById('product_id').value;
-            const quantity = document.getElementById('quantity').value;
             const shippingAddress = document.getElementById('shipping_address').value;
             
-            if (!userId || !productId || !quantity || !shippingAddress) {
+            if (cartItems.length === 0) {
+                alert('Your cart is empty. Please add products before placing an order.');
+                return;
+            }
+            
+            if (!userId || !shippingAddress) {
                 alert('Please fill in all required fields');
                 return;
             }
@@ -362,11 +632,15 @@
             button.disabled = true;
             button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...';
             
+            // For this example, we'll just handle the first item in the cart
+            // In a real implementation, you would need to handle multiple items
+            const firstItem = cartItems[0];
+            
             // Prepare data for API call
             const orderData = {
                 user_id: parseInt(userId),
-                product_id: parseInt(productId),
-                quantity: parseInt(quantity)
+                product_id: parseInt(firstItem.product_id),
+                quantity: parseInt(firstItem.quantity)
             };
             
             // Make API call to backend
@@ -386,13 +660,9 @@
                 if (data.success) {
                     // Update confirmation details
                     document.getElementById('selectedUserId').textContent = userId;
-                    document.getElementById('selectedProductId').textContent = productId;
-                    document.getElementById('selectedQuantity').textContent = quantity;
+                    document.getElementById('selectedProductId').textContent = firstItem.product_id;
+                    document.getElementById('selectedQuantity').textContent = firstItem.quantity;
                     document.getElementById('emailAddress').textContent = 'user' + userId + '@example.com';
-                    
-                    // Update displayed values in the order summary
-                    document.getElementById('summaryQuantity').textContent = quantity;
-                    document.getElementById('shippingAddressDisplay').textContent = shippingAddress;
                     
                     // Use the actual order ID from the response
                     const orderId = data.order_id || Math.floor(10000 + Math.random() * 90000);
@@ -408,6 +678,7 @@
                         shippingMethodText = 'Overnight';
                     }
                     document.getElementById('shippingMethodDisplay').textContent = shippingMethodText;
+                    document.getElementById('shippingAddressDisplay').textContent = shippingAddress;
                     
                     // Set payment method display
                     const paymentMethod = document.getElementById('payment_method').value;
@@ -425,6 +696,9 @@
                     
                     // Scroll to confirmation
                     document.getElementById('confirmationSection').scrollIntoView({ behavior: 'smooth' });
+                    
+                    // Clear the cart
+                    cartItems = [];
                 } else {
                     // Show error if the API call failed
                     alert('Error: ' + data.message);
@@ -436,16 +710,6 @@
                 button.disabled = false;
                 button.innerHTML = originalText;
             });
-        });
-        
-        // Toggle credit card fields based on payment method
-        document.getElementById('payment_method').addEventListener('change', function() {
-            const creditCardFields = document.getElementById('credit_card_fields');
-            if (this.value === 'credit_card') {
-                creditCardFields.style.display = 'block';
-            } else {
-                creditCardFields.style.display = 'none';
-            }
         });
     </script>
 </body>

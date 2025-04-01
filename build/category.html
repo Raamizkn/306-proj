@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Category - Women's Fashion Store</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f8f9fa;
+            padding-top: 56px;
+        }
+        .product-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            margin-bottom: 20px;
+            height: 100%;
+        }
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .card-title {
+            font-weight: 600;
+            color: #343a40;
+        }
+        .card-img-top {
+            height: 200px;
+            object-fit: cover;
+        }
+        .footer {
+            background-color: #343a40;
+            color: #f8f9fa;
+            padding: 40px 20px;
+            margin-top: 50px;
+            text-align: center;
+        }
+        .btn-container {
+            margin-top: auto;
+        }
+        .category-header {
+            background-color: #e9ecef;
+            padding: 40px 0;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .category-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: #0d6efd;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="index.html">MyStore</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="products.html">All Products</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle active" href="#" id="categoriesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Categories
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="categoriesDropdown" id="category-dropdown">
+                            <li><a class="dropdown-item" href="products.html">All Categories</a></li>
+                            <!-- Categories will be populated dynamically -->
+                        </ul>
+                    </li>
+                </ul>
+                <form class="d-flex me-2">
+                    <input class="form-control me-2" type="search" placeholder="Search products..." aria-label="Search">
+                    <button class="btn btn-outline-light" type="submit">Search</button>
+                </form>
+                <ul class="navbar-nav ms-auto">
+                     <li class="nav-item">
+                        <a class="nav-link" href="wishlist_manager.html"><i class="fas fa-heart"></i> Wishlist</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="order_placement.html"><i class="fas fa-shopping-cart"></i> Cart</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownAccount" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-user"></i> Account
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownAccount">
+                            <li><a class="dropdown-item" href="order_status.html">Order Status</a></li>
+                            <li><a class="dropdown-item" href="track_shipment.html">Track Shipment</a></li>
+                            <li><a class="dropdown-item" href="product_review.html">Product Reviews</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="category-header">
+        <div class="container">
+            <div id="category-icon" class="category-icon">
+                <i class="fas fa-tshirt"></i>
+            </div>
+            <h1 id="category-title">Category Products</h1>
+            <p class="lead" id="category-description">Browse our collection of elegant women's fashion.</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3 mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Filters</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="priceRange" class="form-label">Price Range</label>
+                            <input type="range" class="form-range" id="priceRange" min="0" max="200" value="200">
+                            <div class="d-flex justify-content-between">
+                                <span>$0</span>
+                                <span id="priceValue">$200</span>
+                            </div>
+                        </div>
+                        <div class="mb-3" id="filter-attributes">
+                            <!-- Dynamic filters will be added here based on category -->
+                        </div>
+                        <button class="btn btn-primary w-100" id="apply-filters">Apply Filters</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-9">
+                <div class="row" id="category-products">
+                    <!-- Products will be loaded here -->
+                    <div class="text-center py-5 w-100">
+                        <div class="spinner-border" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p>Loading products...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <h5>MyStore</h5>
+                    <p>Your favorite women's fashion store.</p>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <h5>Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-white">About Us</a></li>
+                        <li><a href="#" class="text-white">Contact</a></li>
+                        <li><a href="#" class="text-white">FAQ</a></li>
+                        <li><a href="#" class="text-white">Terms of Service</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <h5>Follow Us</h5>
+                    <a href="#" class="text-white me-2"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="text-white me-2"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="text-white"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+            <hr style="border-color: rgba(255, 255, 255, 0.1);">
+            <p class="mb-0">&copy; 2024 MyStore. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get the category from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const category = urlParams.get('category');
+            
+            if (!category) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            // Load categories for dropdown
+            loadCategories();
+            
+            // Load products for the selected category
+            loadCategoryProducts(category);
+            
+            // Setup price filter
+            document.getElementById('priceRange').addEventListener('input', function() {
+                document.getElementById('priceValue').textContent = '$' + this.value;
+            });
+        });
+        
+        function loadCategories() {
+            fetch('get_categories.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        populateCategoryDropdown(data.categories);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading categories:', error);
+                });
+        }
+        
+        function populateCategoryDropdown(categories) {
+            const dropdown = document.getElementById('category-dropdown');
+            
+            // Keep the first item (All Categories) and add new ones
+            const firstItem = dropdown.innerHTML;
+            dropdown.innerHTML = firstItem;
+            
+            categories.forEach(category => {
+                const li = document.createElement('li');
+                li.innerHTML = `<a class="dropdown-item" href="category.html?category=${category.id}">${category.name}</a>`;
+                dropdown.appendChild(li);
+            });
+        }
+        
+        function loadCategoryProducts(category) {
+            fetch(`get_products_by_category.php?category=${category}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update category header
+                        updateCategoryHeader(category, data.products.length);
+                        
+                        // Display products
+                        displayProducts(data.products);
+                        
+                        // Set up category-specific filters
+                        setupFilters(category, data.products);
+                    } else {
+                        document.getElementById('category-products').innerHTML = 
+                            `<div class="col-12 text-center">
+                                <div class="alert alert-danger">Error: ${data.message}</div>
+                            </div>`;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('category-products').innerHTML = 
+                        `<div class="col-12 text-center">
+                            <div class="alert alert-danger">Failed to load products. Please refresh the page.</div>
+                        </div>`;
+                });
+        }
+        
+        function updateCategoryHeader(category, productCount) {
+            const categoryTitleEl = document.getElementById('category-title');
+            const categoryDescEl = document.getElementById('category-description');
+            const categoryIconEl = document.getElementById('category-icon');
+            
+            // Update title and icon based on category
+            switch(category) {
+                case 'clothes':
+                    categoryTitleEl.textContent = 'Women\'s Clothing';
+                    categoryDescEl.textContent = `Browse our collection of ${productCount} elegant clothing items for women.`;
+                    categoryIconEl.innerHTML = '<i class="fas fa-tshirt"></i>';
+                    break;
+                case 'bags':
+                    categoryTitleEl.textContent = 'Women\'s Bags';
+                    categoryDescEl.textContent = `Explore our selection of ${productCount} stylish bags for any occasion.`;
+                    categoryIconEl.innerHTML = '<i class="fas fa-shopping-bag"></i>';
+                    break;
+                case 'jewellery':
+                    categoryTitleEl.textContent = 'Women\'s Jewelry';
+                    categoryDescEl.textContent = `Discover our collection of ${productCount} beautiful jewelry pieces to complement your style.`;
+                    categoryIconEl.innerHTML = '<i class="fas fa-gem"></i>';
+                    break;
+                case 'shoes':
+                    categoryTitleEl.textContent = 'Women\'s Shoes';
+                    categoryDescEl.textContent = `Find the perfect pair from our collection of ${productCount} women's shoes.`;
+                    categoryIconEl.innerHTML = '<i class="fas fa-shoe-prints"></i>';
+                    break;
+                default:
+                    categoryTitleEl.textContent = 'Products';
+                    categoryDescEl.textContent = `Browse our collection of ${productCount} products.`;
+            }
+            
+            // Update document title
+            document.title = categoryTitleEl.textContent + ' - MyStore';
+        }
+        
+        function setupFilters(category, products) {
+            const filterContainer = document.getElementById('filter-attributes');
+            filterContainer.innerHTML = '';
+            
+            // Common filter - color
+            if (products.length > 0 && products[0].color) {
+                // Get unique colors
+                const colors = [...new Set(products.map(product => product.color))];
+                
+                const colorFilter = document.createElement('div');
+                colorFilter.innerHTML = `
+                    <label class="form-label">Color</label>
+                    <div class="d-flex flex-wrap gap-2">
+                        ${colors.map(color => `
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="${color}" id="color-${color}">
+                                <label class="form-check-label" for="color-${color}">${color}</label>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                filterContainer.appendChild(colorFilter);
+            }
+            
+            // Category-specific filters
+            switch(category) {
+                case 'clothes':
+                    // Size filter for clothes
+                    if (products.length > 0 && products[0].size) {
+                        const sizes = [...new Set(products.map(product => product.size))];
+                        const sizeFilter = document.createElement('div');
+                        sizeFilter.className = 'mt-3';
+                        sizeFilter.innerHTML = `
+                            <label class="form-label">Size</label>
+                            <div class="d-flex flex-wrap gap-2">
+                                ${sizes.map(size => `
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="${size}" id="size-${size}">
+                                        <label class="form-check-label" for="size-${size}">${size}</label>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `;
+                        filterContainer.appendChild(sizeFilter);
+                    }
+                    
+                    // Material filter for clothes
+                    if (products.length > 0 && products[0].material) {
+                        const materials = [...new Set(products.map(product => product.material))];
+                        const materialFilter = document.createElement('div');
+                        materialFilter.className = 'mt-3';
+                        materialFilter.innerHTML = `
+                            <label class="form-label">Material</label>
+                            <div class="d-flex flex-wrap gap-2">
+                                ${materials.map(material => `
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="${material}" id="material-${material}">
+                                        <label class="form-check-label" for="material-${material}">${material}</label>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `;
+                        filterContainer.appendChild(materialFilter);
+                    }
+                    break;
+                    
+                case 'shoes':
+                case 'bags':
+                    // Size filter for shoes and bags
+                    if (products.length > 0 && products[0].size) {
+                        const sizes = [...new Set(products.map(product => product.size))];
+                        const sizeFilter = document.createElement('div');
+                        sizeFilter.className = 'mt-3';
+                        sizeFilter.innerHTML = `
+                            <label class="form-label">Size</label>
+                            <div class="d-flex flex-wrap gap-2">
+                                ${sizes.map(size => `
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="${size}" id="size-${size}">
+                                        <label class="form-check-label" for="size-${size}">${size}</label>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `;
+                        filterContainer.appendChild(sizeFilter);
+                    }
+                    break;
+                    
+                case 'jewellery':
+                    // Metal filter for jewelry
+                    if (products.length > 0 && products[0].metal) {
+                        const metals = [...new Set(products.map(product => product.metal))];
+                        const metalFilter = document.createElement('div');
+                        metalFilter.className = 'mt-3';
+                        metalFilter.innerHTML = `
+                            <label class="form-label">Metal</label>
+                            <div class="d-flex flex-wrap gap-2">
+                                ${metals.map(metal => `
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="${metal}" id="metal-${metal}">
+                                        <label class="form-check-label" for="metal-${metal}">${metal}</label>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `;
+                        filterContainer.appendChild(metalFilter);
+                    }
+                    break;
+            }
+            
+            // Set up filter functionality
+            document.getElementById('apply-filters').addEventListener('click', function() {
+                filterProducts(products);
+            });
+        }
+        
+        function filterProducts(products) {
+            // Get price range
+            const maxPrice = document.getElementById('priceRange').value;
+            
+            // Get all checked filter values
+            const checkedFilters = {};
+            
+            // Collect all checkboxes that are checked
+            document.querySelectorAll('#filter-attributes input[type="checkbox"]:checked').forEach(checkbox => {
+                // Extract filter type from ID (color-, size-, material-, metal-)
+                const filterType = checkbox.id.split('-')[0];
+                
+                // Initialize array if it doesn't exist
+                if (!checkedFilters[filterType]) {
+                    checkedFilters[filterType] = [];
+                }
+                
+                // Add value to filter
+                checkedFilters[filterType].push(checkbox.value);
+            });
+            
+            // Filter products based on selected criteria
+            const filteredProducts = products.filter(product => {
+                // Price filter
+                if (parseFloat(product.price) > maxPrice) {
+                    return false;
+                }
+                
+                // Apply other filters if they exist
+                for (const [filterType, values] of Object.entries(checkedFilters)) {
+                    if (values.length > 0) {
+                        // If this filter type has selected values, product must match one of them
+                        if (!values.includes(product[filterType])) {
+                            return false;
+                        }
+                    }
+                }
+                
+                return true;
+            });
+            
+            // Display filtered products
+            displayProducts(filteredProducts);
+        }
+        
+        function displayProducts(products) {
+            const productsContainer = document.getElementById('category-products');
+            productsContainer.innerHTML = '';
+            
+            if (products.length === 0) {
+                productsContainer.innerHTML = '<div class="col-12 text-center"><p>No products found matching your criteria.</p></div>';
+                return;
+            }
+            
+            // Create product cards
+            products.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'col-md-6 col-lg-4 mb-4';
+                
+                // Generate image URL or use placeholder
+                const imageUrl = product.image_url || `https://via.placeholder.com/300x200.png?text=${encodeURIComponent(product.name)}`;
+                
+                productCard.innerHTML = `
+                    <div class="card product-card">
+                        <img src="${imageUrl}" class="card-img-top" alt="${product.name}">
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title">${product.name}</h5>
+                            <p class="card-text">${product.description ? product.description.substring(0, 60) + '...' : 'No description available'}</p>
+                            <p class="card-text"><strong>$${parseFloat(product.price).toFixed(2)}</strong></p>
+                            <div class="btn-container mt-auto text-center">
+                                <a href="product_details.html?id=${product.product_id}" class="btn btn-outline-secondary btn-sm me-1">View</a>
+                                <a href="order_placement.html?product_id=${product.product_id}" class="btn btn-primary btn-sm">Add to Cart</a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                productsContainer.appendChild(productCard);
+            });
+        }
+    </script>
+</body>
+</html> 
